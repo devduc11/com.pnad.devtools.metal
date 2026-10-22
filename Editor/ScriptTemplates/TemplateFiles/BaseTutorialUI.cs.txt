@@ -1,0 +1,25 @@
+using DG.Tweening;
+using Metal.BaseGame;
+using Teo.AutoReference;
+using UnityEngine;
+
+public class BaseTutorialUI : BaseUI
+{
+    [SerializeField, GetInChildren, Name("Object")]
+    private RectTransform _objectRec;
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        UpFx();
+    }
+
+    private void UpFx()
+    {
+        for (int i = 0; i < _objectRec.childCount; i++)
+        {
+            _objectRec.GetChild(i).transform.DOKill();
+            _objectRec.GetChild(i).transform.localScale = Vector3.zero;
+            _objectRec.GetChild(i).transform.DOScale(Vector3.one, 0.4f).SetDelay(i * 0.05f).SetEase(Ease.OutBack);
+        }
+    }
+}

@@ -1,0 +1,7 @@
+using Metal.BaseGame;
+using Teo.AutoReference;
+using UnityEngine;
+
+public class #SCRIPTNAME# : BaseMonoBehaviour
+{
+}

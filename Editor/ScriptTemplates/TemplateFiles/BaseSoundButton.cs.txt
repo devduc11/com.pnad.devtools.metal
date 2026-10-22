@@ -1,0 +1,65 @@
+using System.Collections;
+using Metal;
+using Metal.BaseGame;
+using Teo.AutoReference;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class BaseSoundButton : BaseButton
+{
+    [SerializeField, Get] private Image _image;
+    [SerializeField, Get] protected RectTransform _Rect;
+    [SerializeField] private bool _isPauseBtn;
+    private SoundManager Sound => ServiceLocator.Game.Get<SoundManager>();
+
+
+    protected override void Start()
+    {
+        base.Start();
+        if (_image.type == Image.Type.Sliced)
+            StartCoroutine(UpdatePixelsPerUnitMultiplier());
+    }
+
+    private IEnumerator UpdatePixelsPerUnitMultiplier()
+    {
+        yield return new WaitForEndOfFrame();
+        _image.pixelsPerUnitMultiplier = _image.sprite.texture.height / _Rect.rect.height;
+    }
+
+    protected override void OnClickListener()
+    {
+        PlaySound();
+
+        if (_isPauseBtn) return;
+
+        base.OnClickListener();
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+
+        if (IsScaleOneBtn())
+            transform.localScale = Vector3.one;
+    }
+
+    protected virtual void PlaySound()
+    {
+        // Sound.PlaySfx(SoundId.Button);
+    }
+
+    protected void SetIsPauseBtn(bool isPauseBtn)
+    {
+        _isPauseBtn = isPauseBtn;
+    }
+
+    protected override void OnClick()
+    {
+        // throw new System.NotImplementedException();
+    }
+
+    protected virtual bool IsScaleOneBtn()
+    {
+        return true;
+    }
+}

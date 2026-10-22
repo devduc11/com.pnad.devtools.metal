@@ -1,0 +1,36 @@
+using System.Collections.Generic;
+using Metal.BaseGame;
+using UnityEngine;
+
+public abstract class BaseSpawnerUI<TInstance, T> : BaseMonoBehaviour
+    where TInstance : MonoBehaviour
+    where T : Component
+{
+    public static TInstance Instance { get; private set; }
+
+    protected readonly Queue<T> _Pool = new();
+
+    protected override void Awake()
+    {
+        base.Awake();
+        Instance = this as TInstance;
+    }
+
+    public T Get()
+    {
+        if (_Pool.Count == 0)
+            return Instantiate(GetPrefab(), transform);
+
+        T obj = _Pool.Dequeue();
+        obj.gameObject.SetActive(true);
+        return obj;
+    }
+
+    public void Release(T obj)
+    {
+        obj.gameObject.SetActive(false);
+        _Pool.Enqueue(obj);
+    }
+
+    protected abstract T GetPrefab();
+}

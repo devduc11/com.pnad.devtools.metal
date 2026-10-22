@@ -1,0 +1,21 @@
+using Metal.BaseGame;
+using Teo.AutoReference;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class LoadingUI : BaseLoading
+{
+    [SerializeField, GetInChildren, Name("Fill")]
+    private Image _fill;
+    protected override float LoadingTimeOut => 10;
+
+    protected override void LoadingDone()
+    {
+        ActivateNextScene();
+    }
+
+    protected override void LoadingProgress(float progress)
+    {
+        _fill.fillAmount = progress;
+    }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "com.pnad.devtools.metal",
+  "displayName": "PNAD DevTools",
+  "version": "1.0.0",
+  "unity": "2021.3",
+  "unityRelease": "0f1",
+  "description": "Bộ công cụ Editor tích hợp cho Unity:\n- Init Project: Tự động khởi tạo cấu trúc thư mục chuẩn Assets/_Project\n- Script Templates: Sinh nhanh script mẫu (UIManager, LoadingUI, SoundManager, SaveManager, ...)\n- Import Package: Import các package phổ biến trực tiếp từ UPM (EagleSDK, UIEffect, UIParticle)",
+  "author": {
+    "name": "PNAD",
+    "url": "https://github.com/devduc11/dev_tools"
+  },
+  "license": "MIT",
+  "hideInEditor": false,
+  "dependencies": {
+    "com.unity.editorcoroutines": "1.0.0"
+  }
+}

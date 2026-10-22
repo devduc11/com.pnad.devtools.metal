@@ -1,0 +1,6 @@
+using Metal.BaseGame;
+using UnityEngine;
+
+public class #SCRIPTNAME# : BaseUI
+{
+}

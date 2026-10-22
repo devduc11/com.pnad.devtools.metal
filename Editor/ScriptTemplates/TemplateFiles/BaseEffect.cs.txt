@@ -1,0 +1,174 @@
+using System;
+using System.Collections.Generic;
+using DG.Tweening;
+using Metal.BaseGame;
+using Teo.AutoReference;
+using UnityEngine;
+
+public abstract class BaseEffect : BaseMonoBehaviour
+{
+    [SerializeField, GetInChildren, Name("FitterCenter")]
+    protected Transform _FitterCenter;
+    private readonly Queue<GameObject> _coinsQueue = new Queue<GameObject>();
+    private readonly List<Tween> _activeTweens = new List<Tween>();
+
+    [Header("Animation Settings")]
+    [SerializeField][Range(0.1f, 0.9f)] float _minAnimDuration = 0.5f;
+    [SerializeField][Range(0.1f, 2f)] float _maxAnimDuration = 0.9f;
+    [SerializeField] Ease _easeType = Ease.InFlash;
+    [SerializeField] float _spread = 0.5f;
+    [SerializeField] float _scatterDuration = 0.1f;
+    [SerializeField][Range(0f, 0.15f)] float _spawnStagger = 0.01f;
+    [SerializeField] float _arcHeight = 3f;
+
+    private int _c;
+    public int Coins
+    {
+        get => _c;
+        set => _c = value;
+    }
+
+    protected override void OnDisable()
+    {
+        StopAllFx();
+        base.OnDisable();
+    }
+
+    GameObject CreateNewCoinToPool()
+    {
+        GameObject prefab = AnimatedPrefab();
+        if (prefab == null) return null;
+
+        GameObject coin = Instantiate(prefab, _FitterCenter);
+        coin.SetActive(false);
+        coin.transform.localScale = Vector3.one;
+        _coinsQueue.Enqueue(coin);
+        return coin;
+    }
+
+    void Animate(Vector3 collectedCoinPosition, int amount, Action action = null)
+    {
+        int total = amount >= 10 ? 10 : amount;
+
+        int completed = 0;
+        Transform targetTrans = Target();
+
+        for (int i = 0; i < total; i++)
+        {
+            if (_coinsQueue.Count == 0)
+            {
+                CreateNewCoinToPool();
+            }
+
+            GameObject coin = _coinsQueue.Dequeue();
+            if (coin == null) continue;
+
+            Transform coinTransform = coin.transform;
+            coinTransform.DOKill();
+            coin.SetActive(true);
+            OnItemSpawned(coin);
+            coinTransform.position = collectedCoinPosition;
+
+            Vector3 scatterPos = collectedCoinPosition;
+            if (total > 1)
+            {
+                scatterPos = collectedCoinPosition + new Vector3(
+                     UnityEngine.Random.Range(-_spread, _spread),
+                     UnityEngine.Random.Range(-_spread, _spread),
+                     0f
+                 );
+            }
+
+            float moveDuration = UnityEngine.Random.Range(_minAnimDuration, _maxAnimDuration);
+            float pauseDelay = UnityEngine.Random.Range(0.03f, 0.1f);
+            float startDelay = i * _spawnStagger;
+
+            Sequence seq = DOTween.Sequence()
+                .SetUpdate(true)
+                .SetDelay(startDelay)
+                .SetLink(coin, LinkBehaviour.KillOnDestroy);
+
+            seq.Append(coinTransform.DOMove(scatterPos, _scatterDuration).SetEase(Ease.OutCubic));
+            seq.AppendInterval(pauseDelay);
+
+            if (targetTrans != null)
+            {
+                AppendArcFly(seq, coinTransform, scatterPos, targetTrans, moveDuration, _easeType);
+            }
+
+            seq.OnComplete(() =>
+            {
+                coinTransform.DOKill();
+                coin.SetActive(false);
+                _coinsQueue.Enqueue(coin);
+
+                Coins++;
+                completed++;
+
+                if (completed >= total)
+                {
+                    action?.Invoke();
+                }
+            });
+
+            _activeTweens.Add(seq);
+            seq.OnKill(() => _activeTweens.Remove(seq));
+        }
+    }
+
+    void AppendArcFly(Sequence seq, Transform coinTransform, Vector3 from, Transform targetTrans, float duration, Ease ease)
+    {
+        float progress = 0f;
+        seq.Append(DOTween.To(
+            () => progress,
+            value =>
+            {
+                progress = value;
+                Vector3 end = targetTrans.position;
+                Vector3 control = (from + end) * 0.5f + Vector3.up * _arcHeight;
+                float inverse = 1f - progress;
+                coinTransform.position = inverse * inverse * from
+                    + 2f * inverse * progress * control
+                    + progress * progress * end;
+            },
+            1f,
+            duration
+        ).SetEase(ease));
+    }
+
+    void StopAllFx()
+    {
+        for (int i = _activeTweens.Count - 1; i >= 0; i--)
+        {
+            _activeTweens[i]?.Kill();
+        }
+
+        _activeTweens.Clear();
+        _coinsQueue.Clear();
+
+        for (int i = 0; i < _FitterCenter.childCount; i++)
+        {
+            Transform child = _FitterCenter.GetChild(i);
+            child.DOKill();
+            child.gameObject.SetActive(false);
+            _coinsQueue.Enqueue(child.gameObject);
+        }
+    }
+
+    public void AddFx(Vector3 collectedCoinPosition, int amount = 10, Action action = null)
+    {
+        StopAllFx();
+        Coins = 0;
+        Animate(collectedCoinPosition, amount, action);
+    }
+
+    public void AddFxWithoutStop(Vector3 collectedCoinPosition, int amount = 10, Action action = null)
+    {
+        Coins = 0;
+        Animate(collectedCoinPosition, amount, action);
+    }
+
+    protected virtual void OnItemSpawned(GameObject item) { }
+    protected abstract GameObject AnimatedPrefab();
+    protected abstract Transform Target();
+}
