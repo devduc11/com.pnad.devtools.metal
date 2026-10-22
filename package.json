@@ -7,7 +7,7 @@
   "description": "Bộ công cụ Editor tích hợp cho Unity:\n- Init Project: Tự động khởi tạo cấu trúc thư mục chuẩn Assets/_Project\n- Script Templates: Sinh nhanh script mẫu (UIManager, LoadingUI, SoundManager, SaveManager, ...)\n- Import Package: Import các package phổ biến trực tiếp từ UPM (EagleSDK, UIEffect, UIParticle)",
   "author": {
     "name": "PNAD",
-    "url": "https://github.com/devduc11/dev_tools"
+    "url": "https://github.com/devduc11/com.pnad.devtools.metal"
   },
   "license": "MIT",
   "hideInEditor": false,
