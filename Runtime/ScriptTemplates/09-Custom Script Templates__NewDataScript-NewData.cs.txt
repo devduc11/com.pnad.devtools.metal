@@ -1,0 +1,10 @@
+using System;
+using Metal.BaseGame;
+using UnityEngine;
+
+[Serializable]
+public partial class #SCRIPTNAME#
+{
+    // [SerializeField] private SaveValue<bool> _isBool = new();
+    // [SerializeField] private SaveValue<int> _isInt = new();
+}

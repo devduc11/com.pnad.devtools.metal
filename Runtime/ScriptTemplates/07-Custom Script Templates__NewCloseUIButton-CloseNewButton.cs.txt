@@ -1,0 +1,12 @@
+using Metal;
+
+public class #SCRIPTNAME# : BaseSoundButton
+{
+    private UIManager UI => ServiceLocator.Game.Get<UIManager>();
+    protected override void OnClick()
+    {
+        // UI.Hide<NewUI>(() =>
+        // {
+        // });
+    }
+}
